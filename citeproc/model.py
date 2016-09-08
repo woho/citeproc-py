@@ -253,7 +253,8 @@ class Bibliography(FormattingInstructions, CitationStylesElement):
         return self.layout.sort_bibliography(citation_items)
 
     def render(self, citation_items):
-        return self.layout.render_bibliography(citation_items)
+        output = self.layout.render_bibliography(citation_items)
+        return self.get_formatter().bibliography_wrap(str(output))
 
 
 # Style behavior
@@ -576,18 +577,15 @@ class Parent(object):
             return None
 
     def render_children(self, item, **kwargs):
-        output = []
+        output = ''
         for child in self.iterchildren():
             try:
                 text = child.render(item, **kwargs)
                 if text is not None:
-                    output.append(text)
+                    output += text
             except VariableError:
                 pass
-        if output:
-            return reduce(lambda a, b: a + b, output)
-        else:
-            return None
+        return output
 
 
 class Macro(CitationStylesElement, Parent):
@@ -626,7 +624,8 @@ class Layout(CitationStylesElement, Parent, Formatted, Affixed, Delimited):
         for item in bad_cites:
             callback_value = callback(item)
             out.append(callback_value or '{}?'.format(item.key))
-        return self.format(self.wrap(self.join(out)))
+        out = self.format(self.wrap(self.join(out)))
+        return self.get_formatter().citation_format(item['key'], out)
 
     def sort_bibliography(self, citation_items):
         sort = self.getparent().find('cs:sort', self.nsmap)
@@ -635,13 +634,34 @@ class Layout(CitationStylesElement, Parent, Formatted, Affixed, Delimited):
         return citation_items
 
     def render_bibliography(self, citation_items):
-        output_items = []
+        output = ''
         for item in citation_items:
             self.repressed = {}
-            text = self.format(self.wrap(self.render_children(item)))
-            if text is not None:
-                output_items.append(text)
-        return output_items
+            first = False
+            sfa = self.getparent().get('second-field-align')
+            first_part = None
+            second_part = ''
+            for child in self.iterchildren():
+                try:
+                    text = str(child.render(item))
+                except VariableError:
+                    continue
+                if text is None:
+                    continue
+                if first_part is None and sfa == 'flush':
+                    first_part = text
+                else:
+                    second_part += text
+            if first_part is None:
+                second_part = self.get('prefix', '') + second_part
+            else:
+                first_part = self.get('prefix', '') + first_part
+            second_part = second_part + self.get('suffix', '')
+            text = self.get_formatter().bibliography_entry_format(item['key'], \
+                first_part, second_part)
+            text = self.format(text)
+            output += text
+        return output
 
 
 class Text(CitationStylesElement, Formatted, Affixed, Quoted, TextCased,
