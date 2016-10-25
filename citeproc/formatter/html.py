@@ -32,52 +32,26 @@ def bibliography_entry_format(key, first_part, second_part):
 def preformat(text):
     return escape(str(text), quote=False)
 
-class TagWrapper(str):
-    tag = None
-    attributes = None
+def italic(text):
+    return '<i>' + text + '</i>'
 
-    @classmethod
-    def _wrap(cls, text):
-        if cls.attributes:
-            attrib = ' ' + ' '.join(['{}="{}"'.format(key, value)
-                                     for key, value in cls.attributes.items()])
-        else:
-            attrib = ''
-        return '<{tag}{attrib}>{text}</{tag}>'.format(tag=cls.tag,
-                                                      attrib=attrib,text=text)
+def oblique(text):
+    return italic(text)
 
-    def __new__(cls, text):
-        return super(TagWrapper, cls).__new__(cls, cls._wrap(text))
+def bold(text):
+    return '<b>' + text + '</b>'
 
+def light(text):
+    return '<l>' + text + '</l>'
 
-class Italic(TagWrapper):
-    tag = 'i'
+def light(text):
+    return '<u>' + text + '</u>'
 
+def superscript(text):
+    return '<sup>' + text + '</sup>'
 
-class Oblique(Italic):
-    pass
+def subscript(text):
+    return '<sub>' + text + '</sub>'
 
-
-class Bold(TagWrapper):
-    tag = 'b'
-
-
-class Light(TagWrapper):
-    tag = 'l'
-
-
-class Underline(TagWrapper):
-    tag = 'u'
-
-
-class Superscript(TagWrapper):
-    tag = 'sup'
-
-
-class Subscript(TagWrapper):
-    tag = 'sub'
-
-
-class SmallCaps(TagWrapper):
-    tag = 'span'
-    attributes = {'style': 'font-variant:small-caps;'}
+def smallcaps(text):
+    return '<span style="font-variant:small-caps;">' + text + '</span>'

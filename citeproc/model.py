@@ -276,9 +276,9 @@ class Formatted(object):
         if font_style == 'normal':
             formatted = text
         elif font_style == 'italic':
-            formatted = formatter.Italic(text)
+            formatted = formatter.italic(text)
         elif font_style == 'oblique':
-            formatted = formatter.Oblique(text)
+            formatted = formatter.oblique(text)
         return formatted
 
     def font_variant(self, text):
@@ -287,7 +287,7 @@ class Formatted(object):
         if font_variant == 'normal':
             formatted = text
         elif font_variant == 'small-caps':
-            formatted = formatter.SmallCaps(text)
+            formatted = formatter.smallCaps(text)
         return formatted
 
     def font_weight(self, text):
@@ -296,9 +296,9 @@ class Formatted(object):
         if font_weight == 'normal':
             formatted = text
         elif font_weight == 'bold':
-            formatted = formatter.Bold(text)
+            formatted = formatter.bold(text)
         elif font_weight == 'light':
-            formatted = formatter.Light(text)
+            formatted = formatter.light(text)
         return formatted
 
     def text_decoration(self, text):
@@ -307,7 +307,7 @@ class Formatted(object):
         if text_decoration == 'none':
             formatted = text
         elif text_decoration == 'underline':
-            formatted = formatter.Underline(text)
+            formatted = formatter.underline(text)
         return formatted
 
     def vertical_align(self, text):
@@ -316,9 +316,9 @@ class Formatted(object):
         if vertical_align == 'baseline':
             formatted = text
         elif vertical_align == 'sup':
-            formatted = formatter.Superscript(text)
+            formatted = formatter.superscript(text)
         elif vertical_align == 'sub':
-            formatted = formatter.Subscript(text)
+            formatted = formatter.subscript(text)
         return formatted
 
 
@@ -643,15 +643,15 @@ class Layout(CitationStylesElement, Parent, Formatted, Affixed, Delimited):
             second_part = ''
             for child in self.iterchildren():
                 try:
-                    text = str(child.render(item))
+                    text = child.render(item)
                 except VariableError:
                     continue
                 if text is None:
                     continue
                 if first_part is None and sfa == 'flush':
-                    first_part = text
+                    first_part = str(text)
                 else:
-                    second_part += text
+                    second_part += str(text)
             if first_part is None:
                 second_part = self.get('prefix', '') + second_part
             else:
